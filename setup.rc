@@ -1,0 +1,6 @@
+# Setup script for sysconf layer "sysconf.owncloud"  -*- shell-script -*-
+
+_packages=""
+# _packages="$_packages owncloud"
+
+# sysconf_require_packages "$_packages"
