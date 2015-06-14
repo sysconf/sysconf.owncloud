@@ -1,5 +1,9 @@
 # Setup script for sysconf layer "sysconf.owncloud"  -*- shell-script -*-
 
+if ! apt-cache show owncloud | grep -q Package:;; then
+    apt-get update
+fi
+
 _packages=""
 _packages="$_packages owncloud apache2"
 
