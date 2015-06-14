@@ -1,4 +1,4 @@
-# This is a Sysconf repository for the Catapatate OwnCloud system
+# This is a Sysconf repository for the sysconf profile 'OwnCloud'
 
 * Inspired after: http://www.noobslab.com/2015/01/install-owncloud-in-ubuntulinux-mint.html
 
@@ -16,5 +16,4 @@
 
 ## Dependencies
 
-* ```../sysconf.base/``` from ```git@github.com:sysconf/sysconf.base.git``` [```master```]
-* ```../sysconf.gitted/``` from ```git@github.com:sysconf/sysconf.gitted.git``` [```master```]
+* ```../sysconf.mysql/``` from ```git@github.com:sysconf/sysconf.mysql.git``` [```master```]

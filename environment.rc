@@ -1,3 +1,4 @@
 # Environment (config) for sysconf.owncloud  -*- shell-script -*-
 
-SYSCONF_OWNCLOUD_MYSQL_PASSWORD=pheiph8AEuPe5iet
+SYSCONF_MYSQL_USER_NAME=owncloud
+SYSCONF_MYSQL_USER_PASSWORD=pheiph8AEuPe5iet

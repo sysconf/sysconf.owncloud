@@ -44,24 +44,3 @@ if [ $? = 0 ]; then
 else
     service apache2 start
 fi
-
-mysql_run() {
-    echo "MySQL query: $1" >&2
-    echo "$1" >&2
-    echo "$1" | mysql
-    local _status=${PIPESTATUS[1]}
-    if [ $_status -ne 0 ]; then
-        nef_fatal "MySQL query failed with status $_status"
-    fi
-}
-
-# Create MySQL database and user for owncloud
-mysql_run "CREATE DATABASE IF NOT EXISTS owncloud"
-_count=$(mysql_run "SELECT User FROM mysql.user WHERE User = 'owncloud'" | grep ^owncloud | wc -l)
-if [ $_count -eq 0 ]; then
-    nef_log "Fixing MySQL user: owncloud"
-    mysql_run "CREATE USER 'owncloud'@'%' IDENTIFIED BY 'owncloud'"
-    mysql_run "GRANT ALL PRIVILEGES ON owncloud.* TO 'owncloud' "
-    mysql_run "FLUSH PRIVILEGES"
-    mysql_run "SET PASSWORD FOR 'owncloud'@'%' = PASSWORD('${SYSCONF_OWNCLOUD_MYSQL_PASSWORD}');"
-fi
