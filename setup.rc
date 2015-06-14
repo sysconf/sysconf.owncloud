@@ -27,6 +27,10 @@ fi
 [ "$(stat -c %U /var/www/owncloud)" = www-data ] \
     || chown -R www-data:www-data /var/www/owncloud
 
+if [ ! -d /var/lib/owncloud ]; then
+    mv /var/www/owncloud/data /var/lib/owncloud \
+        && ln -s /var/lib/owncloud /var/www/owncloud/data
+fi
 
 service apache2 status
 if [ $? = 0 ]; then
