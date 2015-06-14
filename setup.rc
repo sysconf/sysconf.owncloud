@@ -1,6 +1,6 @@
 # Setup script for sysconf layer "sysconf.owncloud"  -*- shell-script -*-
 
-if ! apt-cache show owncloud | grep -q Package:;; then
+if ! apt-cache show owncloud | grep -q Package:; then
     apt-get update
 fi
 
