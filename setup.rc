@@ -1,6 +1,59 @@
 # Setup script for sysconf layer "sysconf.owncloud"  -*- shell-script -*-
 
 _packages=""
-# _packages="$_packages owncloud"
+_packages="$_packages owncloud apache2"
 
-# sysconf_require_packages "$_packages"
+sysconf_require_packages "$_packages"
+
+_apache_reload=no
+if [[ -r /etc/apache2/sites-enabled/000-default.conf ]]; then
+    rm -f /etc/apache2/sites-enabled/000-default.conf
+    _apache_reload=yes
+fi
+
+# Fix the error: apache2: Could not reliably determine the server's fully qualified domain name, using x.x.x.x for ServerName
+if [ ! -f /etc/apache2/conf-enabled/server-name.conf ]; then
+    cat >/etc/apache2/conf-enabled/server-name.conf <<EOF
+# Added by sysconf.owncloud:
+ServerName $(hostname)
+EOF
+_apache_reload=yes
+fi
+
+[ "$(stat -c %U /var/www/owncloud)" = www-data ] \
+    || chown -R www-data:www-data /var/www/owncloud
+
+
+service apache2 status
+if [ $? = 0 ]; then
+    if [ $_apache_reload = yes ]; then
+        if apachectl -S >/dev/null 2>&1; then
+            apachectl graceful
+        else
+            echo "Not restarting Apache2, please execute `apachectl -S` for more info."
+        fi
+    fi
+else
+    service apache2 start
+fi
+
+mysql_run() {
+    echo "MySQL query: $1" >&2
+    echo "$1" >&2
+    echo "$1" | mysql
+    local _status=${PIPESTATUS[1]}
+    if [ $_status -ne 0 ]; then
+        nef_fatal "MySQL query failed with status $_status"
+    fi
+}
+
+# Create MySQL database and user for owncloud
+mysql_run "CREATE DATABASE IF NOT EXISTS owncloud"
+_count=$(mysql_run "SELECT User FROM mysql.user WHERE User = 'owncloud'" | grep ^owncloud | wc -l)
+if [ $_count -eq 0 ]; then
+    nef_log "Fixing MySQL user: owncloud"
+    mysql_run "CREATE USER 'owncloud'@'%' IDENTIFIED BY 'owncloud'"
+    mysql_run "GRANT ALL PRIVILEGES ON owncloud.* TO 'owncloud' "
+    mysql_run "FLUSH PRIVILEGES"
+    mysql_run "SET PASSWORD FOR 'owncloud'@'%' = PASSWORD('${SYSCONF_OWNCLOUD_MYSQL_PASSWORD}');"
+fi
